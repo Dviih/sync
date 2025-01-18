@@ -43,3 +43,38 @@ func (pool *Pool[T]) Get() T {
 	return v
 }
 
+func (pool *Pool[T]) Put(t T) {
+	defer pool.m.Unlock()
+	pool.m.Lock()
+
+	select {
+	case pool.c <- t:
+		return
+	default:
+		if len(pool.c) <= cap(pool.c) {
+			if pool.c == nil {
+				pool.c = make(chan T, 2)
+				pool.c <- t
+				return
+			}
+
+			panic("resize ain't the issue here")
+		}
+
+		c := make(chan T, 2*cap(pool.c))
+		for {
+			v, ok := <-pool.c
+			if !ok {
+				break
+			}
+
+			c <- v
+		}
+
+		c <- t
+		pool.c = c
+		return
+
+	}
+}
+

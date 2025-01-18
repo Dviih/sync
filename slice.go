@@ -26,3 +26,56 @@ type Slice[T interface{}] struct {
 	m    Mutex
 }
 
+func (slice *Slice[T]) Index(i int) T {
+	defer slice.m.Unlock()
+
+	slice.m.Lock()
+	return slice.data[i]
+}
+
+func (slice *Slice[T]) Append(v ...T) {
+	defer slice.m.Unlock()
+
+	slice.m.Lock()
+	slice.data = append(slice.data, v...)
+}
+
+func (slice *Slice[T]) Delete(i int) {
+	defer slice.m.Unlock()
+
+	slice.m.Lock()
+	slice.data = append(slice.data[:i], slice.data[i+1:]...)
+}
+
+func (slice *Slice[T]) Len() int {
+	defer slice.m.Unlock()
+
+	slice.m.Lock()
+	return len(slice.data)
+}
+
+func (slice *Slice[T]) Cap() int {
+	defer slice.m.Unlock()
+
+	slice.m.Lock()
+	return cap(slice.data)
+}
+
+func (slice *Slice[T]) Range(fn func(int, T) bool) {
+	defer slice.m.Unlock()
+	slice.m.Lock()
+
+	for i, t := range slice.data {
+		if !fn(i, t) {
+			break
+		}
+	}
+}
+
+func (slice *Slice[T]) Slice() []T {
+	defer slice.m.Unlock()
+
+	slice.m.Lock()
+	return slice.data[:]
+}
+

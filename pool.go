@@ -27,3 +27,19 @@ type Pool[T interface{}] struct {
 	m   Mutex
 }
 
+func (pool *Pool[T]) Get() T {
+	defer pool.m.Unlock()
+	pool.m.Lock()
+
+	if len(pool.c) == 0 {
+		return pool.new()
+	}
+
+	v, ok := <-pool.c
+	if !ok {
+		return pool.new()
+	}
+
+	return v
+}
+

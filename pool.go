@@ -19,63 +19,27 @@
 
 package sync
 
-import "github.com/Dviih/sync/channel"
+import (
+	"github.com/Dviih/sync/channel"
+	"sync"
+)
 
 type Pool[T interface{}] struct {
-	New func() T
-	c   chan T
-	m   Mutex
+	pool sync.Pool
+	New  func() T
 }
 
 func (pool *Pool[T]) Get() T {
-	defer pool.m.Unlock()
-	pool.m.Lock()
-
-	if len(pool.c) == 0 {
-		return pool.new()
+	t, ok := pool.pool.Get().(T)
+	if ok {
+		return t
 	}
 
-	v, ok := <-pool.c
-	if !ok {
-		return pool.new()
-	}
-
-	return v
+	return pool.new()
 }
 
 func (pool *Pool[T]) Put(t T) {
-	defer pool.m.Unlock()
-	pool.m.Lock()
-
-	select {
-	case pool.c <- t:
-		return
-	default:
-		if len(pool.c) <= cap(pool.c) {
-			if pool.c == nil {
-				pool.c = make(chan T, 2)
-				pool.c <- t
-				return
-			}
-
-			panic("resize ain't the issue here")
-		}
-
-		c := make(chan T, 2*cap(pool.c))
-		for {
-			v, ok := <-pool.c
-			if !ok {
-				break
-			}
-
-			c <- v
-		}
-
-		c <- t
-		pool.c = c
-		return
-
-	}
+	pool.pool.Put(t)
 }
 
 func (pool *Pool[T]) new() T {

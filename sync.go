@@ -28,3 +28,6 @@ type (
 	WaitGroup = sync.WaitGroup
 )
 
+func Zero[T interface{}]() (zero T) {
+	return zero
+}

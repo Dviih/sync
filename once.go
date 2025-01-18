@@ -30,3 +30,40 @@ type Once[T interface{}] struct {
 	result []interface{}
 }
 
+func (once *Once[T]) Do(fn T) interface{} {
+	if once.done.Load() {
+		switch len(once.result) {
+		case 0:
+			return nil
+		case 1:
+			return once.result[0]
+		default:
+			return once.result[:]
+		}
+	}
+
+	defer once.m.Unlock()
+	once.m.Lock()
+
+	v := reflect.ValueOf(fn)
+
+	if v.Type().NumIn() > 0 {
+		panic("once: Do func must not have input arguments")
+	}
+
+	out := v.Call(nil)
+	for i := 0; i < len(out); i++ {
+		once.result = append(once.result, out[i].Interface())
+	}
+
+	once.done.Store(true)
+
+	switch len(once.result) {
+	case 0:
+		return nil
+	case 1:
+		return once.result[0]
+	default:
+		return once.result[:]
+	}
+}

@@ -78,3 +78,11 @@ func (pool *Pool[T]) Put(t T) {
 	}
 }
 
+func (pool *Pool[T]) new() T {
+	if pool.New == nil {
+		return Zero[T]()
+	}
+
+	return pool.New()
+}
+

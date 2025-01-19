@@ -24,3 +24,12 @@ import (
 	"sync"
 )
 
+type Manager[T interface{}] struct {
+	m         sync.Mutex
+	receivers []chan T
+	dead      map[chan T]bool
+
+	Handler func(T)
+	Dead    chan uintptr
+}
+

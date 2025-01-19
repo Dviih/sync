@@ -79,3 +79,17 @@ func (slice *Slice[T]) Slice() []T {
 	return slice.data[:]
 }
 
+type SliceChan[T interface{}] struct {
+	Slice[T]
+	channel.Manager[T]
+}
+
+func (sc *SliceChan[T]) Sender() chan<- T {
+	if sc.Manager.Handler == nil {
+		sc.Manager.Handler = func(t T) {
+			sc.Append(t)
+		}
+	}
+
+	return sc.Manager.Sender()
+}

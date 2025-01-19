@@ -50,3 +50,17 @@ func (pool *Pool[T]) new() T {
 	return pool.New()
 }
 
+type PoolChan[T interface{}] struct {
+	Pool[T]
+	channel.Manager[T]
+}
+
+func (pc *PoolChan[T]) Sender() chan<- T {
+	if pc.Manager.Handler == nil {
+		pc.Manager.Handler = func(t T) {
+			pc.Pool.Put(t)
+		}
+	}
+
+	return pc.Manager.Sender()
+}

@@ -84,3 +84,17 @@ func (maps *Map[K, V]) Map() map[K]V {
 	return m
 }
 
+type MapChan[K comparable, V interface{}] struct {
+	Map[K, V]
+	channel.Manager[*channel.KV[K, V]]
+}
+
+func (mc *MapChan[K, V]) Sender() chan<- *channel.KV[K, V] {
+	if mc.Manager.Handler == nil {
+		mc.Manager.Handler = func(kv *channel.KV[K, V]) {
+			mc.Map.Store(kv.Key, kv.Value)
+		}
+	}
+
+	return mc.Manager.Sender()
+}

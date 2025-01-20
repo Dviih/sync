@@ -33,3 +33,21 @@ type Manager[T interface{}] struct {
 	Dead    chan uintptr
 }
 
+func (manager *Manager[T]) Sender() chan<- T {
+	c := make(chan T)
+
+	go func() {
+		for {
+			select {
+			case t, ok := <-c:
+				if !ok {
+					return
+				}
+
+				go manager.handle(t)
+			}
+		}
+	}()
+
+	return c
+}

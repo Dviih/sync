@@ -25,9 +25,8 @@ import (
 )
 
 type Manager[T interface{}] struct {
-	m         sync.Mutex
-	receivers []chan T
-	dead      map[chan T]bool
+	receivers sync.Map
+	dead      sync.Map
 
 	Handler func(T)
 	Dead    chan uintptr
@@ -53,12 +52,9 @@ func (manager *Manager[T]) Sender() chan<- T {
 }
 
 func (manager *Manager[T]) Receiver() <-chan T {
-	defer manager.m.Unlock()
-
 	c := make(chan T)
-	manager.m.Lock()
 
-	manager.receivers = append(manager.receivers, c)
+	manager.receivers.Store(c, true)
 	return c
 }
 

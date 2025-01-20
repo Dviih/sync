@@ -17,50 +17,19 @@
  *
  */
 
-package sync
+package channel
 
-import (
-	"github.com/Dviih/sync/channel"
-	"sync"
-)
-
-type Pool[T interface{}] struct {
-	pool sync.Pool
-	New  func() T
+type Channel[T interface{}] interface {
+	Sender() chan<- T
+	Receiver(...int) <-chan T
 }
 
-func (pool *Pool[T]) Get() T {
-	t, ok := pool.pool.Get().(T)
-	if ok {
-		return t
-	}
-
-	return pool.new()
+type Logic[T interface{}] interface {
+	Send(T) bool
+	Receive() (T, bool)
 }
 
-func (pool *Pool[T]) Put(t T) {
-	pool.pool.Put(t)
-}
-
-func (pool *Pool[T]) new() T {
-	if pool.New == nil {
-		return Zero[T]()
-	}
-
-	return pool.New()
-}
-
-type PoolChan[T interface{}] struct {
-	Pool[T]
-	channel.Manager[T]
-}
-
-func (pc *PoolChan[T]) Sender() chan<- T {
-	if pc.Manager.Handler == nil {
-		pc.Manager.Handler = func(t T) {
-			pc.Pool.Put(t)
-		}
-	}
-
-	return pc.Manager.Sender()
+type KV[K comparable, V interface{}] struct {
+	Key   K
+	Value V
 }

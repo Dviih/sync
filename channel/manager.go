@@ -58,3 +58,38 @@ func (manager *Manager[T]) Receiver() <-chan T {
 	return c
 }
 
+func (manager *Manager[T]) handle(t T) {
+	if manager.Handler != nil {
+		manager.Handler(t)
+	}
+
+	var wg sync.WaitGroup
+
+	manager.receivers.Range(func(key, value any) bool {
+		wg.Add(1)
+
+		go func(receiver chan T) {
+			defer wg.Done()
+
+			select {
+			case receiver <- t:
+				manager.dead.Delete(receiver)
+			default:
+				if _, ok := manager.dead.Load(receiver); ok {
+					if manager.Dead != nil {
+						manager.Dead <- reflect.ValueOf(receiver).Pointer()
+					}
+
+					manager.receivers.Delete(receiver)
+					manager.dead.Delete(receiver)
+
+					return
+				}
+
+				manager.dead.Store(receiver, true)
+			}
+		}(key.(chan T))
+
+		return true
+	})
+}

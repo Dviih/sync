@@ -51,8 +51,17 @@ func (manager *Manager[T]) Sender() chan<- T {
 	return c
 }
 
-func (manager *Manager[T]) Receiver() <-chan T {
-	c := make(chan T)
+func (manager *Manager[T]) Receiver(v ...int) <-chan T {
+	var c chan T
+
+	switch len(v) {
+	case 0:
+		c = make(chan T)
+	case 1:
+		c = make(chan T, v[0])
+	default:
+		panic("invalid receiver length")
+	}
 
 	manager.receivers.Store(c, true)
 	return c

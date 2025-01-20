@@ -21,7 +21,7 @@ package channel
 
 type Channel[T interface{}] interface {
 	Sender() chan<- T
-	Receiver() <-chan T
+	Receiver(...int) <-chan T
 }
 
 type Logic[T interface{}] interface {

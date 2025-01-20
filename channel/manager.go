@@ -51,3 +51,14 @@ func (manager *Manager[T]) Sender() chan<- T {
 
 	return c
 }
+
+func (manager *Manager[T]) Receiver() <-chan T {
+	defer manager.m.Unlock()
+
+	c := make(chan T)
+	manager.m.Lock()
+
+	manager.receivers = append(manager.receivers, c)
+	return c
+}
+

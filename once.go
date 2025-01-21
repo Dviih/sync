@@ -51,6 +51,14 @@ func (once *Once[T]) Do(fn T) interface{} {
 		panic("once: Do func must not have input arguments")
 	}
 
+	defer func() {
+		r := recover()
+
+		if !once.done.Load() {
+			panic(r)
+		}
+	}()
+
 	out := v.Call(nil)
 	for i := 0; i < len(out); i++ {
 		once.result = append(once.result, out[i].Interface())

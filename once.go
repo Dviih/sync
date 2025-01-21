@@ -84,3 +84,12 @@ func OnceValue[T interface{}](fn func() T) func() T {
 	}
 }
 
+func OnceValues[T1, T2 interface{}](fn func() (T1, T2)) func() (T1, T2) {
+	once := &Once[func() (T1, T2)]{}
+
+	return func() (T1, T2) {
+		i := once.Do(fn)
+
+		return i.([]interface{})[0].(T1), i.([]interface{})[1].(T2)
+	}
+}

@@ -68,7 +68,7 @@ func (maps *Map[K, V]) LoadAndDelete(key K) (V, bool) {
 }
 
 func (maps *Map[K, V]) Range(fn func(K, V) bool) {
-	maps.m.Range(func(k, v any) bool {
+	maps.m.Range(func(k, v interface{}) bool {
 		return fn(k.(K), v.(V))
 	})
 }

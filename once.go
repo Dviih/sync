@@ -76,3 +76,11 @@ func OnceFunc(fn func()) func() {
 	}
 }
 
+func OnceValue[T interface{}](fn func() T) func() T {
+	once := &Once[func() T]{}
+
+	return func() T {
+		return once.Do(fn).(T)
+	}
+}
+

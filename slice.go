@@ -76,7 +76,11 @@ func (slice *Slice[T]) Slice() []T {
 	defer slice.m.Unlock()
 
 	slice.m.Lock()
-	return slice.data[:]
+
+	data := make([]T, len(slice.data))
+	copy(data, slice.data)
+
+	return data
 }
 
 type SliceChan[T interface{}] struct {

@@ -28,9 +28,14 @@ type Once[T interface{}] struct {
 	done   atomic.Bool
 	m      Mutex
 	result []interface{}
+	r      interface{}
 }
 
 func (once *Once[T]) Do(fn T) interface{} {
+	if once.r != nil {
+		panic(once.r)
+	}
+
 	if once.done.Load() {
 		switch len(once.result) {
 		case 0:
@@ -51,6 +56,14 @@ func (once *Once[T]) Do(fn T) interface{} {
 		panic("once: Do func must not have input arguments")
 	}
 
+	defer func() {
+		once.r = recover()
+
+		if !once.done.Load() {
+			panic(once.r)
+		}
+	}()
+
 	out := v.Call(nil)
 	for i := 0; i < len(out); i++ {
 		once.result = append(once.result, out[i].Interface())
@@ -65,5 +78,31 @@ func (once *Once[T]) Do(fn T) interface{} {
 		return once.result[0]
 	default:
 		return once.result[:]
+	}
+}
+
+func OnceFunc(fn func()) func() {
+	once := &Once[func()]{}
+
+	return func() {
+		once.Do(fn)
+	}
+}
+
+func OnceValue[T interface{}](fn func() T) func() T {
+	once := &Once[func() T]{}
+
+	return func() T {
+		return once.Do(fn).(T)
+	}
+}
+
+func OnceValues[T1, T2 interface{}](fn func() (T1, T2)) func() (T1, T2) {
+	once := &Once[func() (T1, T2)]{}
+
+	return func() (T1, T2) {
+		i := once.Do(fn)
+
+		return i.([]interface{})[0].(T1), i.([]interface{})[1].(T2)
 	}
 }

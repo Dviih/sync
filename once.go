@@ -67,3 +67,12 @@ func (once *Once[T]) Do(fn T) interface{} {
 		return once.result[:]
 	}
 }
+
+func OnceFunc(fn func()) func() {
+	once := &Once[func()]{}
+
+	return func() {
+		once.Do(fn)
+	}
+}
+

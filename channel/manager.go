@@ -74,7 +74,7 @@ func (manager *Manager[T]) handle(t T) {
 
 	var wg sync.WaitGroup
 
-	manager.receivers.Range(func(key, value any) bool {
+	manager.receivers.Range(func(key, _ interface{}) bool {
 		wg.Add(1)
 
 		go func(receiver chan T) {

@@ -28,6 +28,7 @@ type Once[T interface{}] struct {
 	done   atomic.Bool
 	m      Mutex
 	result []interface{}
+	r      interface{}
 }
 
 func (once *Once[T]) Do(fn T) interface{} {
@@ -52,10 +53,10 @@ func (once *Once[T]) Do(fn T) interface{} {
 	}
 
 	defer func() {
-		r := recover()
+		once.r = recover()
 
 		if !once.done.Load() {
-			panic(r)
+			panic(once.r)
 		}
 	}()
 

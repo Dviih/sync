@@ -32,6 +32,10 @@ type Once[T interface{}] struct {
 }
 
 func (once *Once[T]) Do(fn T) interface{} {
+	if once.r != nil {
+		panic(once.r)
+	}
+
 	if once.done.Load() {
 		switch len(once.result) {
 		case 0:

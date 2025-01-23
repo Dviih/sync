@@ -35,6 +35,7 @@ func (wait *Wait) C() <-chan bool {
 }
 
 func (wait *Wait) Done() {
+	wait.lazy()
 	wait.c <- true
 }
 

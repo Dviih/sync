@@ -23,6 +23,12 @@ type Wait struct {
 	c chan bool
 }
 
+func (wait *Wait) lazy() {
+	if wait.c == nil {
+		wait.c = make(chan bool)
+	}
+}
+
 func (wait *Wait) Done() {
 	wait.c <- true
 }

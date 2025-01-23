@@ -40,9 +40,5 @@ func (wait *Wait) Done() {
 }
 
 func (wait *Wait) Wait() {
-	if wait.c == nil {
-		wait.c = make(chan bool)
-	}
-
-	<-wait.c
+	<-wait.C()
 }

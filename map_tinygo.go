@@ -26,7 +26,7 @@ import "reflect"
 func (maps *Map[K, V]) Swap(key K, value V) (V, bool) {
 	p, ok := maps.Load(key)
 	if !ok {
-		p = maps.zero()
+		p = Zero[V]()
 	}
 
 	maps.Store(key, value)

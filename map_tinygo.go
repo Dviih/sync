@@ -26,7 +26,7 @@ import "reflect"
 func (maps *Map[K, V]) Swap(key K, value V) (V, bool) {
 	p, ok := maps.Load(key)
 	if !ok {
-		p = maps.zero()
+		p = Zero[V]()
 	}
 
 	maps.Store(key, value)
@@ -34,8 +34,8 @@ func (maps *Map[K, V]) Swap(key K, value V) (V, bool) {
 }
 
 func (maps *Map[K, V]) CompareAndSwap(key K, old, new V) bool {
-	c, err := maps.Load(key)
-	if err != nil {
+	c, ok := maps.Load(key)
+	if !ok {
 		return false
 	}
 
@@ -48,8 +48,8 @@ func (maps *Map[K, V]) CompareAndSwap(key K, old, new V) bool {
 }
 
 func (maps *Map[K, V]) CompareAndDelete(key K, value V) bool {
-	c, err := maps.Load(key)
-	if err != nil {
+	c, ok := maps.Load(key)
+	if !ok {
 		return false
 	}
 

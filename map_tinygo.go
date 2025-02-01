@@ -24,17 +24,17 @@ package sync
 import "reflect"
 
 func (maps *Map[K, V]) Swap(key K, value V) (V, bool) {
-	p, ok := _map.Load(key)
+	p, ok := maps.Load(key)
 	if !ok {
 		p = _map.zero()
 	}
 
-	_map.Store(key, value)
+	maps.Store(key, value)
 	return p, ok
 }
 
 func (maps *Map[K, V]) CompareAndSwap(key K, old, new V) bool {
-	c, err := _map.Load(key)
+	c, err := maps.Load(key)
 	if err != nil {
 		return false
 	}
@@ -43,12 +43,12 @@ func (maps *Map[K, V]) CompareAndSwap(key K, old, new V) bool {
 		return false
 	}
 
-	_map.Store(key, new)
+	maps.Store(key, new)
 	return true
 }
 
 func (maps *Map[K, V]) CompareAndDelete(key K, value V) bool {
-	c, err := _map.Load(key)
+	c, err := maps.Load(key)
 	if err != nil {
 		return false
 	}
@@ -57,6 +57,6 @@ func (maps *Map[K, V]) CompareAndDelete(key K, value V) bool {
 		return false
 	}
 
-	_map.Delete(key)
+	maps.Delete(key)
 	return true
 }

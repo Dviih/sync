@@ -48,7 +48,7 @@ func (maps *Map[K, V]) CompareAndSwap(key K, old, new V) bool {
 }
 
 func (maps *Map[K, V]) CompareAndDelete(key K, value V) bool {
-	c, err := maps.Load(key)
+	c, ok := maps.Load(key)
 	if !ok {
 		return false
 	}

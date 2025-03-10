@@ -19,13 +19,17 @@
 
 package sync
 
-import "sync"
+import (
+	"github.com/Dviih/sync/channel"
+	"sync"
+)
 
 type (
-	Locker    = sync.Locker
-	Mutex     = sync.Mutex
-	RWMutex   = sync.RWMutex
-	WaitGroup = sync.WaitGroup
+	Locker                          = sync.Locker
+	Mutex                           = sync.Mutex
+	RWMutex                         = sync.RWMutex
+	WaitGroup                       = sync.WaitGroup
+	KV[K comparable, V interface{}] = channel.KV[K, V]
 )
 
 func Zero[T interface{}]() (zero T) {

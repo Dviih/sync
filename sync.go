@@ -1,6 +1,6 @@
 /*
  *     Drop-in replacement for Go's sync featuring generics and channels.
- *     Copyright (C) 2025  Dviih
+ *     Copyright (C) 2026  Dviih
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as published
@@ -20,16 +20,14 @@
 package sync
 
 import (
-	"github.com/Dviih/sync/channel"
 	"sync"
 )
 
 type (
-	Locker                          = sync.Locker
-	Mutex                           = sync.Mutex
-	RWMutex                         = sync.RWMutex
-	WaitGroup                       = sync.WaitGroup
-	KV[K comparable, V interface{}] = channel.KV[K, V]
+	Locker    = sync.Locker
+	Mutex     = sync.Mutex
+	RWMutex   = sync.RWMutex
+	WaitGroup = sync.WaitGroup
 )
 
 func Zero[T interface{}]() (zero T) {
